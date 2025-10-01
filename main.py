@@ -1,196 +1,164 @@
-#task1
-print("task1")
+# 1
 
 age = 25
-name = "valo"
-print(f"{name} is {age} years old")
+name = "luka"
 
-#task2
-print("task2")
+print(name)
+print(name)
 
+# 2
 
 length = 10.5
-int_lenght = int(length)
+int_length = int(length)
 
-print(f"{type(length)}    {type(int_lenght)}")
+print(length)
+print(int_length)
 
-#task3
-print("task3")
-
+# 3
 
 x = 5
 y = 10.5
 z = "hello"
 
-print(f"x:{x} y:{y} z:{z}")
+print(f'x: {x}, y: {y}, z: {z}')
 
-#task4
-print("task4")
 
+# 4
 
 def greet(name):
-    print(f"my name is {name}")
-
-greet("valo")
+    return f'hello {name}'
 
 
-#task5
-print("task5")
+print(greet('luka'))
+
+# 5
 
 
 def is_even(num):
-    if num % 2 == 0 :
-        return "true"
-    else:
-        return "false"
+
+    if num % 2 == 0:
+        return True
+
+    return False
 
 print(is_even(4))
 print(is_even(7))
 
-#task6
-print("task6")
+# 6
 
+fruits = ["apple", "banana", "orange"]
+fruit_colors = {"apple": "red", "banana": "yellow", "orange": "orange"}
 
-fruits = ["apple","banana","orange"]
-fruit_colors = {"apple":"red","banana":"yellow","orange":"orange"}
 
 for fruit in fruits:
-    print(f"{fruit} is {fruit_colors.get(fruit)}")
+    print(fruit_colors[fruit])
+
+# 7
+
+l_squared = [i * i for i in range(1, 10 + 1)]
+
+print(l_squared)
+
+# 8
+
+l_3div = [i for i in range(1, 20 + 1) if i % 3 == 0]
+
+print(l_3div)
+
+# 9
 
 
-#task7
-print("task7")
-
-
-squares = []
-for i in range(11):
-    squares.append(i * i)
-print(squares)
-
-#task8
-print("task8")
-
-
-for i in range(20):
-    if i % 3 == 0:
-        print(i)
-
-#task9
-print("task9")
-
-
-print("task9")
 def fizz_buzz(n):
-    for i in range(1,n + 1):
-        if i % 3 == 0 and i % 5 == 0 :
-            print("fizzbuzz")
+    for i in range(n + 1):
+        if i % 3 == 0 and i % 5 == 0:
+            print(f"{i}: fizzbuzz")
         elif i % 3 == 0:
-            print("fizz")
+            print(f"{i}: fizz")
         elif i % 5 == 0:
-            print("buzz")
-        else:
-            print(i)
+            print(f"{i}: buzz")
 
 fizz_buzz(20)
 
-
-#task10
-print("task10")
+#10
 
 
-def division(x,y):
+def div(n1, n2):
     try:
-        print(x / y)
-    except:
-        print("division by 0")
+        return n1 / n2
+    except ArithmeticError as e:
+        print(e)
+        return None
 
-division(20,0)
-division(20,5)
 
-#task11
-print("task11")
+div(1, 0)
+div(15, 5)
 
-def list_index(lst,i):
+# 11
+
+
+def get_val(lst, idx):
     try:
-        print(lst[i])
-    except:
-        print("index out of range")
+        return lst[idx]
+    except Exception as e:
+        print("list index out of bound")
+        return None
 
-l = [1,2,3,4]
+# 12
 
-list_index(l,1)
-list_index(l,10)
 
-#task12
-print("task12")
+num = None
+
+
+def input_int():
+
+    num = input("input an integer: ")
+
+    if "." in num:
+        raise TypeError("Not an integer")
+
+    try:
+        num = int(num)
+    except Exception as e:
+        raise TypeError("Not an integer")
+
+    return num
+
+
+while num is None:
+
+    try:
+        num = input_int()
+    except TypeError as e:
+        print("incorrect type, try again")
+
+print(num * num)
+
+# 13
+
+f = open("hello.txt", "w")
+f.write("hello world")
+f.close()
+
+# 14
 
 try:
-    num = int(input("Enter a number: "))
-    square = num ** 2
-    print(f"The square of {num} is  {square}")
-except ValueError:
-    print("Invalid input! Please enter a valid integer.")
-
-
-#task13
-print("task13")
-
-try:
-    with open("hello.txt", "w") as file:
-        file.write("Hello, World!")
-
-    print("File written successfully!")
-except Exception as e:
-    print("An error occurred:", e)
-
-#task14
-print("task14")
-
-try:
-    with open("hello.txt", "r") as file:
-        content = file.read()
-        print("File content:")
-        print(content)
+    f = open("hello.txt", "r")
+    print(f.read())
+    f.close()
 except FileNotFoundError:
-    print("Error: 'hello.txt' does not exist.")
-except Exception as e:
-    print("An unexpected error occurred:", e)
+    print("file does not exist")
 
 
-#task15
-print("task15")
+# 15
 
+f = open("numbers.txt", "r")
 
-try:
-    with open("numbers.txt", "w") as file:
-        file.write("10\n20\n30\n40\n50\n")
-    print("'numbers.txt' created successfully!")
-except Exception as e:
-    print("Error creating file:", e)
+sum = 0
+l = 0
 
+for line in f.readlines():
+    sum += float(line)
+    l += 1.0
 
-try:
-    with open("numbers.txt", "r") as file:
-        numbers = []
-        for line in file:
-            line = line.strip()
-            if line:
-                try:
-                    num = float(line)
-                    numbers.append(num)
-                except ValueError:
-                    print(f"Warning: '{line}' is not a number and will be skipped.")
-
-    if numbers:
-        total = sum(numbers)
-        average = total / len(numbers)
-        print(f"Sum of numbers: {total}")
-        print(f"Average of numbers: {average}")
-    else:
-        print("No valid numbers found in the file.")
-
-except FileNotFoundError:
-    print("Error: 'numbers.txt' does not exist.")
-except Exception as e:
-    print("An unexpected error occurred:", e)
+print(div(sum, l))
 
