@@ -94,7 +94,8 @@ with open('output.txt','w') as file:
     file.write("Hello,World!")
 
 print("File written successfully")   
-9
+
+
 #task 14
 try: 
    with open('output.txt','r') as file: 
@@ -109,9 +110,8 @@ finally:
 
 #task 15
 try:
-  
   def write(n):
-      with open('number.txt','w') as file:
+    with open('number.txt','w') as file:
         for i in range(1,n+1):
            file.write(f"{i}\n")
 
