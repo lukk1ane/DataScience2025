@@ -58,4 +58,59 @@ print("Task 5")
 series_3 = pd.Series([15, 22, 15, 30, 22, 45, 30, 15])
 print("Unique values:", series_3.unique())
 print("Number of unique values:", series_3.nunique())
-print("Value counts:\n", series_3.value_counts(), "\n")
+print("Value counts:")
+print(series_3.value_counts())
+print("-"*30, "\n")
+
+
+# Task 6
+print("Task 6")
+df2 = pd.DataFrame({
+    'Item': ['A', 'B', 'C', 'D', 'E'],
+    'Cost': [30, 60, 45, 20, 80]
+})
+df2['Tax'] = df2['Cost'] * 0.10
+df2['Total'] = df2['Cost'] + df2['Tax']
+filtered = df2[df2['Total'] > 50]
+print("Filtered where Total > 50:\n", filtered)
+print("-"*30, "\n")
+
+
+# Task 7
+print("Task 7")
+df3 = pd.DataFrame({
+    'Product': ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'],
+    'Category': ['A', 'A', 'B', 'B', 'C', 'C', 'A', 'B'],
+    'Price': [100, 200, 150, 300, 250, 180, 90, 400],
+    'Stock': [5, 2, 10, 1, 3, 8, 4, 6]
+})
+
+print("Missing values:\n", df3.isnull())
+print("\nNumber of products in each category:\n", df3['Category'].value_counts())
+print("\nTop 3 most expensive products:\n", df3.nlargest(3, 'Price'))
+print("\n2 products with lowest stock:\n", df3.nsmallest(2, 'Stock'))
+print("\nShape:", df3.shape)
+print("Number of dimensions:", df3.ndim)
+print("-"*30, "\n")
+
+
+# Task 8
+print("Task 8")
+df4 = pd.DataFrame({
+    'Student': ['sandy', 'sponge', 'crab', 'patric', 'squid', 'gary', 'plankton', 'sandy', 'plankton', 'gary'],
+    'Subject': ['Math', 'Physics', 'Chemistry', 'Biology', 'Math', 'Chemistry', 'Physics', 'Biology', 'Math', 'Physics'],
+    'Score': [85, 90, 75, 88, 92, 70, 80, 78, 89, 60],
+    'Attendance': [90, 85, 80, 95, 88, 75, 82, 84, 96, 65]
+})
+
+print("Duplicate student names:\n", df4['Student'].duplicated())
+print("\nAfter removing duplicates:\n", df4.drop_duplicates(subset='Student', keep='first'))
+print("\nSet index to Student:\n", df4.set_index('Student'))
+
+print("\nData for sandy:\n", df4.loc[df4['Student'] == 'sandy'])
+print("\nFirst 3 rows:\n", df4.iloc[:3])
+print("\nStudents with Score > 80 and Attendance > 85:\n",
+      df4.query('Score > 80 and Attendance > 85'))
+print("\nStudents with scores between 70 and 90:\n",
+      df4[df4['Score'].between(70, 90)])
+print("-"*30, "\n")
