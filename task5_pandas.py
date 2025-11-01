@@ -46,87 +46,89 @@
 # task is to:
 # - Flatten the DataFrame by creating new columns for each key in the nested data
 # - Ensure the original data structure remains intact while expanding the JSON fields.
-import pandas as pd, numpy as np
+
+import pandas as pd
+import numpy as np
 from pandas import json_normalize
 
-data = pd.DataFrame({
-    'colA': np.random.choice(['X','Y','Z'], 200),
-    'colB': np.random.choice(['A','B'], 200),
-    'colC': np.random.choice(['K','L'], 200),
-    'value': np.random.rand(200) * 1000,
-    'Employee ID': np.random.randint(1, 10, 200),
-    'Date': pd.date_range('2025-01-01', periods=200, freq='D'),
-    'amount': np.random.randint(100, 2000, 200),
-    'Category': np.random.choice(['Food','Tech','Clothes'], 200),
-    'Value': np.random.randint(10, 500, 200),
-    'json_col1': [{'a': i, 'b': i**2} for i in range(200)],
-    'json_col2': [{'x': i*2, 'y': i+5} for i in range(200)]
+# -------------------------
+# Create Example DataFrame
+# -------------------------
+df = pd.DataFrame({
+    'Category1': np.random.choice(['X', 'Y', 'Z'], 200),
+    'Category2': np.random.choice(['A', 'B'], 200),
+    'Category3': np.random.choice(['K', 'L'], 200),
+    'TransactionValue': np.random.rand(200) * 1000,
+    'EmployeeID': np.random.randint(1, 10, 200),
+    'WorkDate': pd.date_range('2025-01-01', periods=200, freq='D'),
+    'Amount': np.random.randint(100, 2000, 200),
+    'ProductCategory': np.random.choice(['Food', 'Tech', 'Clothes'], 200),
+    'ProductValue': np.random.randint(10, 500, 200),
+    'JsonData1': [{'a': i, 'b': i**2} for i in range(200)],
+    'JsonData2': [{'x': i*2, 'y': i+5} for i in range(200)]
 })
 
-# Task 1
-cols = ['colA','colB','colC']
-for c in cols:
-    if data[c].dtype == object:
-        data[c] = data[c].astype('category')
-combo_counts = data.groupby(cols, sort=False).size().reset_index(name='count')
-popular_combos = combo_counts[combo_counts['count'] >= 10]
+# Task 1: Frequent Categorical Combinations
+categorical_cols = ['Category1', 'Category2', 'Category3']
 
-# Task 2
-missing_pct = data.isna().mean()
-top3_cols = missing_pct.nlargest(3).index.tolist()
-data_cleaned = data.dropna(subset=top3_cols)
+# Ensure categories are of type 'category' for efficiency
+for col in categorical_cols:
+    df[col] = df[col].astype('category')
 
-# Task 3
-most_freq = {}
-for col in data.columns:
-    vc = data[col].value_counts(dropna=True)
-    most_freq[col] = vc.index[0] if len(vc) else np.nan
-most_freq_series = pd.Series(most_freq)
+combination_counts = df.groupby(categorical_cols).size().reset_index(name='Count')
+frequent_combinations = combination_counts[combination_counts['Count'] >= 10]
 
-# Task 4
-data['Date'] = pd.to_datetime(data['Date'])
-data = data.sort_values(['Employee ID','Date'])
-data_unique = data.drop_duplicates(subset=['Employee ID','Date'])
-d = data_unique.copy()
-d['prev_date'] = d.groupby('Employee ID')['Date'].shift(1)
-d['gap_days'] = (d['Date'] - d['prev_date']).dt.days.fillna(9999)
-d['new_group'] = (d['gap_days'] != 1).astype(int)
-d['group_id'] = d.groupby('Employee ID')['new_group'].cumsum()
-streaks = d.groupby(['Employee ID','group_id']).size().reset_index(name='streak_len')
-employees_with_5_consecutive = streaks[streaks['streak_len'] >= 5]['Employee ID'].unique()
+# Task 2: Remove Rows Based on Top 3 Missing Columns
+missing_percentage = df.isna().mean()
+top3_missing_cols = missing_percentage.nlargest(3).index.tolist()
+df_cleaned = df.dropna(subset=top3_missing_cols)
 
-# Task 5
-data_ts = pd.DataFrame({
-    'value': np.random.randint(1, 100, 200)
-}, index=pd.date_range('2023-01-01', periods=200, freq='D'))
-data_ts.index = pd.to_datetime(data_ts.index)
-monthly = data_ts.resample('M').sum()
-q1 = monthly[monthly.index.month.isin([1,2,3])]
-q1_per_year = q1.groupby(q1.index.year).apply(lambda g: g)
+# Task 3: Most Frequent Value per Column (Without mode())
+most_common_values = {}
+for col in df.columns:
+    counts = df[col].value_counts()
+    most_common_values[col] = counts.idxmax() if not counts.empty else np.nan
+most_common_series = pd.Series(most_common_values)
 
-# Task 6
-threshold = data['value'].quantile(0.95)
-data_trimmed = data[data['value'] <= threshold]
+# Task 4: Employees with 5 Consecutive Workdays
+df['WorkDate'] = pd.to_datetime(df['WorkDate'])
+df_sorted = df.sort_values(['EmployeeID', 'WorkDate']).drop_duplicates(subset=['EmployeeID','WorkDate'])
 
-# Task 7
-data_time = pd.DataFrame({
-    'x': np.random.randn(200)
-}, index=pd.to_datetime(pd.date_range('2024-01-01', periods=200, freq='2D')))
-data_time = data_time.sort_index()
-rolling_avg = data_time.rolling('7D').mean().interpolate()
+df_sorted['PreviousDate'] = df_sorted.groupby('EmployeeID')['WorkDate'].shift(1)
+df_sorted['DayGap'] = (df_sorted['WorkDate'] - df_sorted['PreviousDate']).dt.days.fillna(9999)
+df_sorted['NewStreak'] = (df_sorted['DayGap'] != 1).astype(int)
+df_sorted['StreakID'] = df_sorted.groupby('EmployeeID')['NewStreak'].cumsum()
 
-# Task 8
-threshold_val = 10000
-cumsum = data['amount'].cumsum()
-first_exceed_idx = cumsum.gt(threshold_val).idxmax() if (cumsum > threshold_val).any() else None
+streak_lengths = df_sorted.groupby(['EmployeeID','StreakID']).size().reset_index(name='StreakLength')
+employees_5_day_streak = streak_lengths[streak_lengths['StreakLength'] >= 5]['EmployeeID'].unique()
 
-# Task 9
-idx = data.groupby('Category')['Value'].transform('max') == data['Value']
-max_rows = data[idx]
+# Task 5: Monthly Resample for Q1
+time_series_df = pd.DataFrame({'Value': np.random.randint(1, 100, 200)},
+                              index=pd.date_range('2023-01-01', periods=200, freq='D'))
+monthly_sum = time_series_df.resample('M').sum()
+q1_sum_per_year = monthly_sum[monthly_sum.index.month.isin([1, 2, 3])].groupby(lambda d: d.year).sum()
 
-# Task 10
-json_cols = ['json_col1','json_col2']
-for col in json_cols:
-    expanded = json_normalize(data[col]).add_prefix(f'{col}_')
-    data = pd.concat([data.drop(columns=[col]), expanded], axis=1)
+# Task 6: Remove Top 5% Transactions by Value
+value_threshold = df['TransactionValue'].quantile(0.95)
+df_trimmed = df[df['TransactionValue'] <= value_threshold]
 
+# Task 7: Moving Average with Irregular Time Intervals
+irregular_time_df = pd.DataFrame({'X': np.random.randn(200)},
+                                 index=pd.date_range('2024-01-01', periods=200, freq='2D'))
+irregular_time_df = irregular_time_df.sort_index()
+rolling_avg_7days = irregular_time_df.rolling('7D').mean().interpolate()
+
+# Task 8: First Time Cumulative Sum Exceeds Threshold
+cumsum_threshold = 10000
+cumulative_sum = df['Amount'].cumsum()
+first_exceed_index = cumulative_sum.gt(cumsum_threshold).idxmax() if (cumulative_sum > cumsum_threshold).any() else None
+
+# Task 9: Max Value per Category
+is_max_per_category = df.groupby('ProductCategory')['ProductValue'].transform('max') == df['ProductValue']
+max_value_rows = df[is_max_per_category]
+
+# Task 10: Flatten Nested JSON Columns
+json_columns = ['JsonData1', 'JsonData2']
+for col in json_columns:
+    expanded_cols = json_normalize(df[col]).add_prefix(f'{col}_')
+    df = pd.concat([df.drop(columns=[col]), expanded_cols], axis=1)
